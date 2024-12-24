@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: docker-demo # 애플리케이션 이름
+
+  # JPA 설정
+  jpa:
+    hibernate:
+      ddl-auto: update # 데이터베이스 스키마 자동 생성
+    show-sql: true # SQL 쿼리 로깅 활성화
+    properties:
+      hibernate:
+        format_sql: true # SQL 쿼리 포맷 지정
+        dialect: org.hibernate.dialect.MySQLDialect # MySQL 데이터베이스 방언 사용
+
+  # DataSource 설정
+  datasource:
+    url: jdbc:mysql://mysql:3306/testdb # MySQL 데이터베이스 연결 URL
+    username: root # MySQL 사용자 이름
+    password: 1234 # MySQL 비밀번호
+    driver-class-name: com.mysql.cj.jdbc.Driver # MySQL 드라이버 클래스 이름
+
+  # Redis 설정
+  data:
+    redis:
+      host: redis # Redis 호스트
+      port: 6379 # Redis 포트
+
+# 액추에이터 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics # 액추에이터 엔드포인트 노출
+
+# 로깅 설정
+logging:
+  level:
+    org.springframework: INFO # Spring 관련 로깅 수준 설정
+    com.example: DEBUG # 예제 패키지 로깅 수준 설정

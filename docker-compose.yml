@@ -1,0 +1,54 @@
+version: '3.8' # 최신 버전 사용
+services:
+  app:
+    build: . # Dockerfile 위치 현재 디렉토리의 Dockerfile 사용
+    ports:
+      - "8080:8080" # 컨테이너 포트 매핑
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev # 개발 프로필 활성화
+      - SERVER_PORT=8080 # 서버 포트 설정
+    deploy:
+      resources:
+        limits:
+          memory: 512M # 컨테이너 메모리 제한
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "<http://localhost:8080/actuator/health>" ] # 상태 확인 테스트 
+      interval: 30s # 상태 확인 간격
+      timeout: 10s # 상태 확인 타임아웃
+      retries: 3 # 상태 확인 재시도 횟수
+    depends_on:
+      redis:
+        condition: service_healthy # redis 서비스가 정상적으로 실행되면 app 서비스 시작
+      mysql:
+        condition: service_healthy # mysql 서비스가 정상적으로 실행되면 app 서비스 시작
+
+  redis:
+    image: redis:7.2 # Redis 최신 안정 버전
+    ports:
+      - "6379:6379" # 컨테이너 포트 매핑
+    volumes:
+      - redis_data:/data # 데이터 볼륨 마운트
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ] # Redis 서비스 상태 확인 테스트
+      interval: 10s # 상태 확인 간격
+      timeout: 5s # 상태 확인 타임아웃
+      retries: 3 # 상태 확인 재시도 횟수
+
+  mysql:
+    image: mysql:8.2 # MySQL 최신 안정 버전
+    ports:
+      - "3306:3306" # 컨테이너 포트 매핑
+    environment:
+      MYSQL_ROOT_PASSWORD: root # MySQL 루트 비밀번호
+      MYSQL_DATABASE: testdb # MySQL 데이터베이스 이름
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ] # MySQL 서비스 상태 확인 테스트
+      interval: 10s # 상태 확인 간격
+      timeout: 5s # 상태 확인 타임아웃
+      retries: 3 # 상태 확인 재시도 횟수
+
+volumes:
+  redis_data: # 데이터 볼륨 이름
+  mysql_data: # 데이터 볼륨 이름  
